@@ -65,7 +65,7 @@ connection.connect(function(err) {
   }
   
   function viewLowInventory() {
-        connection.query("SELECT * FROM products WHERE stock_quantity < 10" , function(err, results) {
+        connection.query("SELECT * FROM products WHERE stock_quantity" , function(err, results) {
           console.log("Low inventory Report: ");
           for (var i = 0; i < results.length; i++) {
             console.log('=======================================');
@@ -108,7 +108,7 @@ connection.connect(function(err) {
   
                 var stringQuery = 'SELECT * FROM products WHERE ?';
   
-                connection.query(stringQuery, {id: item}, function(err, results) {
+                connection.query(stringQuery, {id: input}, function(err, results) {
                     if (err) throw err;
   
                     if (results.length === 0) {
