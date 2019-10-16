@@ -12,6 +12,10 @@ Users can run app by typing 'node bamazonManager.js' in terminal. The app will f
 - Add to Inventory. (the user will be able to add to the current stock quantity of a specific item.)
 - Add new Product. (the user will be able to make a new item to the database.)
 
+## Bamazon Supervisor
+Users can run app by typing 'node bamazonSupervisor.js' in terminal. The app will let supervisors view product sales by departments and add new departments.
+
+
 ## Check the Video Demo here
 
 # Technology Used
