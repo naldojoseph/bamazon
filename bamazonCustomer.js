@@ -1,7 +1,5 @@
 var mysql = require ("mysql");
 var inquirer = require ("inquirer");
-var Table = require ("cli-table");
-
 
 var connection = mysql.createConnection({
 	host:"localhost",
@@ -11,68 +9,68 @@ var connection = mysql.createConnection({
 	database:"bamazon_DB"
 });
 
-
-
-//MAIN CHECK AND BUY FUNCTION WHICH DISPLAYS ALL ITEMS FROM MY SQL AND THEN ADDS FUNCTIONALITY TO BUY AN ITEM WITH QUANTITIY CHOICES. 
-var checkAndBuy2 = function() {
-    connection.query('SELECT * FROM products', function(err, res) {
-        //CREATES A NEW TABLE IN THE COOL CLI VIEW 
-        var table = new Table({
-            head: ['ItemID', 'Product Name', 'Department', 'Price', 'Stock Quantity']
-        });
-
-        //DISPLAYS ALL ITEMS FOR SALE 
-        console.log("HERE ARE ALL THE ITEMS AVAILABLE FOR SALE: ");
-        console.log("===========================================");
-        for (var i = 0; i < res.length; i++) {
-            table.push([res[i].id, res[i].product_name, res[i].department_name, res[i].price.toFixed(2), res[i].stock_quantity]);
-        }
-        console.log("-----------------------------------------------");
-        //LOGS THE COOL TABLE WITH ITEMS IN FOR PURCHASE. 
-        console.log(table.toString());
-        inquirer.prompt([{
-            name: "ItemId",
-            type: "input",
-            message: "What is the item ID you would like to buy?",
-            validate: function(value) {
-                if (isNaN(value) == false) {
-                    return true;
-                } else {
-                    return false;
-                }
-            }
-        }, {
-            name: "Quantity",
-            type: "input",
-            message: "How many of this item would you like to buy?",
-            validate: function(value) {
-                if (isNaN(value) == false) {
-                    return true;
-                } else {
-                    return false;
-                }
-            }
-        }]).then(function(answer) {
-            var chosenId = answer.itemId - 1
-            var chosenProduct = res[chosenId]
-            var chosenQuantity = answer.Quantity
-            if (chosenQuantity < res[chosenId].stock_quantity) {
-                console.log("Your total for " + "(" + answer.Quantity + ")" + " - " + res[chosenId].product_name + " is: " + res[chosenId].price.toFixed(2) * chosenQuantity);
-                connection.query("UPDATE products SET ? WHERE ?", [{
-                    stock_quantity: res[chosenId].stock_quantity - chosenQuantity
-                }, {
-                    id: res[chosenId].id
-                }], function(err, res) {
-                    //console.log(err);
-                    checkAndBuy2();
-                });
-
-            } else {
-                console.log("Sorry, insufficient Quanity at this time. All we have is " + res[chosenId].stock_quantity + " in our Inventory.");
-                checkAndBuy2();
-            }
-        })
-    })
-}
-checkAndBuy2();
-
+connection.connect(function(err) {
+	if (err) throw err;
+	console.log("=====================================================");
+	// connection.end();
+	queryAllProducts();
+  });
+  
+  function queryAllProducts() {
+	connection.query("SELECT * FROM products", function(err, res) {
+	  for(var i = 0; i < res.length; i++) {
+		console.log("Product ID: " + res[i].id + " | Product Name: " + res[i].product_name + " | Price: " + res[i].price);
+	  }
+	  console.log("=====================================================");
+	  start();
+	});
+  }
+  
+  function start() {
+	function validateInteger(input)
+	  {
+		 var reg = /^\d+$/;
+		 return reg.test(input) || "Inputs needs to be a positive number only!";
+	  }
+	inquirer
+		.prompt([
+		  {
+			message: "Please select item id of the product you want to purchase: ",
+			type: "input",
+			name: "id",
+			validate: validateInteger
+		  },
+		  {
+			message: "Please enter the amount you want to purchase: ",
+			type: "input",
+			name: "userOrderAmount",
+			validate: validateInteger
+		  }
+		])
+		.then(function(input) {
+		  connection.query("SELECT * FROM products WHERE ?", {id: input.id}, function(err, results) {
+			if (err) throw err;
+			if (results.length === 0) {
+			  console.log("Item Id you select does not exist...");
+			  start();
+			} else {
+			  var product = results[0];
+				if (input.userOrderAmount <= product.stock_quantity) {
+				  console.log("Your order has been placed...");
+  
+				  var adjustStock = "UPDATE products SET stock_quantity = " + (product.stock_quantity - input.userOrderAmount) + ' WHERE id = ' + input.id;
+  
+				  connection.query(adjustStock, function(err, results) {
+					if (err) throw err;
+					console.log("Your total is $" + product.price * input.userOrderAmount);
+					console.log(product.price);
+					connection.end();
+				  })
+				} else {
+				  console.log("You ordered more than we have. Please try reordering less...");
+				  start();
+			}
+		  }
+		})
+	  })
+	}
