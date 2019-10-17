@@ -17,7 +17,7 @@ Users can run app by typing 'node bamazonSupervisor.js' in terminal. The app wil
 
 
 ## Check the Video Demo here
-
+[BAMAZON] (https://drive.google.com/file/d/1tL1xa0R63hJZWStgGGMTpnhflV18qkAf/view)
 # Technology Used
 * MySQL
 * Node.js

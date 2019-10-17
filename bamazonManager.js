@@ -92,7 +92,7 @@ connection.connect(function(err) {
           {
             message: "Enter item id to be update: ",
             type: "input",
-            name: "item_id",
+            name: "id",
             validate: validateInteger
           },
           {
@@ -113,7 +113,7 @@ connection.connect(function(err) {
   
                     if (results.length === 0) {
                         console.log('Please enter a valid item id...');
-                        addInventory();
+                        addToInventory();
   
                     } else {
                         var widget_item = results[0];
